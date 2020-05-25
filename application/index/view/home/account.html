@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link type="text/css" rel="stylesheet" href="__STATIC__/css/account.css">
+</head>
+<body>
+    <div class="top">
+        <p class="p1">您的基础信息</p>
+        <p class="p2">用户名:{$user.username}<a href="http://47.104.242.92/index.php/index/Home/modifyPass" target="iframe2">修改密码</a></p>
+        <p class="p3">手机号:{$user.telephone}<a href="http://47.104.242.92/index.php/index/Home/modifyNumber" target="iframe2">修改手机号</a></p>
+    </div>
+	<div class="bottom">
+		<iframe src="http://47.104.242.92/index.php/index/Home/modifyNumber" name="iframe2" scrolling="no"></iframe>
+	</div>
+</body>
+</html>

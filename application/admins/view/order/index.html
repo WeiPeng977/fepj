@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__STATIC__/plugins/layui/layui.js"></script>
+	<style type="text/css">
+		.header span{background: #009688;margin-left: 30px;padding: 10px;color:#ffffff;}
+		.header div{border-bottom: solid 2px #009688;margin-top: 8px;}
+		.header button{float: right;margin-top: -5px;}
+	</style>
+</head>
+<body style="padding: 10px;">
+	<div class="header">
+		<span>订单列表</span>
+		<div></div>
+	</div>
+	<div class="layui-form-item" style="margin-top: 10px;">
+		<div class="layui-input-inline">
+			<input type="text" class="layui-input" value="{$data.wd}" id="wd" placeholder="请输入用户ID进行搜索">
+		</div>
+		<button class="layui-btn layui-btn-primary" onclick="searchs()"><i class="layui-icon">&#xe615;</i>搜索</button>
+	</div>
+	<table class="layui-table">
+		<thead>
+			<tr>
+				<th>订单ID</th>
+        <th>用户ID</th>
+				<th>商品ID</th>
+				<th>收货人</th>
+				<th>联系方式</th>
+				<th>收货地址</th>
+				<th>订单总价</th>
+				<th>订单状态</th>
+				<th>添加时间</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			{volist name="data.data.lists" id='vo'}
+			<tr>
+				<td>{$vo.oid}</td>
+				<td>{$vo.user_id}</td>
+				<td>{$vo.goods_ids}</td>
+				<td>{$vo.receiver}</td>
+				<td>{$vo.phone}</td>
+				<td>{$vo.address}</td>
+				<td>￥{$vo.price}</td>
+        <td>{switch name="vo.status"}
+            {case value="0"}待付款{/case}
+            {case value="1"}待发货{/case}
+						{case value="2"}待收货{/case}
+						{case value="3"}交易完成{/case}
+            {/switch}</td>
+				<td>{:date('Y-m-d H:i:s',$vo.add_time)}</td>
+				<td>
+					<button class="layui-btn layui-btn-xs" onclick="add({$vo.oid})">编辑</button>
+					{switch name="vo.status"}
+	            {case value="0"}{/case}
+	            {case value="1"}<button class="layui-btn layui-btn-xs" onclick="express({$vo.oid})">发货</button>{/case}
+							{case value="2"}{/case}
+							{case value="3"}{/case}
+	            {/switch}
+				</td>
+			</tr>
+			{/volist}
+		</tbody>
+	</table>
+<div id="pages"></div>
+
+<script type="text/javascript">
+	layui.use(['layer','laypage'],function(){
+		layer = layui.layer;
+		$ = layui.jquery;
+		laypage = layui.laypage;
+
+		laypage.render({
+				elem: 'pages'
+				,count:{$data.data.total}
+				,limit:{$data.pageSize}
+				,curr:{$data.page}
+			,jump: function(obj, first){
+				if(!first){
+					searchs(obj.curr);
+				}
+			}
+		});
+	});
+
+	// 添加编辑
+	function add(oid){
+		layer.open({
+			type: 2,
+			title: '编辑订单',
+			shade: 0.3,
+			area: ['800px', '500px'],
+			content: '/admins.php/admins/order/add?oid='+oid
+		});
+	}
+	// 发货
+	function express(oid){
+		layer.open({
+			type: 2,
+			title: '发货',
+			shade: 0.3,
+			area: ['800px', '500px'],
+			content: '/admins.php/admins/order/express?oid='+oid
+		});
+	}
+
+	// 删除
+	function del(oid){
+		layer.confirm('确定要删除吗？', {
+			icon:3,
+			btn: ['确定','取消']
+		}, function(){
+			$.post('/admins.php/admins/goods/delete',{'oid':oid},function(res){
+				if(res.code>0){
+					layer.alert(res.msg,{icon:2});
+				}else{
+					layer.msg(res.msg);
+					setTimeout(function(){window.location.reload();},1000);
+				}
+			},'json');
+		});
+	}
+
+	// 搜索
+	function searchs(curpage){
+		var wd = $.trim($('#wd').val());
+		var url = "/admins.php/admins/goods/index?page="+curpage;
+		if(wd){
+			url += '&wd='+wd;
+		}
+		window.location.href = url;
+	}
+</script>
+</body>
+</html>

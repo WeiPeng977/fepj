@@ -1,0 +1,84 @@
+{layout name="layout"/}
+<link type="text/css" rel="stylesheet" href="__STATIC__/css/register.css">
+<!--logo+搜索框的实现-->
+<div class="logo_search w">
+    <div class="left">
+        <p class="p1">手推车</p>
+        <p class="p2">shoutuiche.com</p>
+    </div>
+    <div class="center">
+        <input type="text" placeholder="英特尔酷睿i5处理器" class="search">
+        <input type="button" value="搜索" class="btn">
+    </div>
+</div>
+<!--主体main的实现-->
+<div class="main">
+    <div class="main1 w">
+        <div class="register">
+            <p>注册</p>
+        </div>
+        <form>
+          <div class="inform">
+            <input type="text" id="username" placeholder="用户名" class="user">
+            <input type="password" id="password" placeholder="密码">
+            <input type="password" id="repassword" placeholder="确认密码">
+            <input type="text" id="telephone" placeholder="手机号">
+          </div>
+          <div>
+            <input type="button" value="注册" class="register_btn" onclick="doregister()">
+          </div>
+      </form>
+       <div class="to_login">
+            <a href="http://47.104.242.92/index.php/index/Account/login">已有账户?&nbsp;登录</a>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+  layui.use(['layer'],function(){
+    $ = layui.jquery;
+    layer = layui.layer;
+
+    // 用户名控件获取焦点
+    $('#username').focus();
+    // 回车登录
+    $('input').keydown(function(e){
+      if(e.keyCode == 13){
+        doregister();
+      }
+    });
+  });
+function doregister(){
+  var username = $.trim($('#username').val());
+  var pwd = $.trim($('#password').val());
+  var repwd = $.trim($('#repassword').val());
+  var telephone = $.trim($('#telephone').val());
+  if(username == ''){
+    layer.alert('请输入用户名',{icon:2});
+    return;
+  }
+  if(pwd == ''){
+    layer.alert('请输入密码',{icon:2});
+    return;
+  }
+  if(repwd == ''){
+    layer.alert('请确认密码',{icon:2});
+    return;
+  }
+  if(telephone == ''){
+    layer.alert('请输入手机号',{icon:2});
+    return;
+  }
+    if(pwd != repwd){
+      layer.alert('两次输入密码不一致',{icon:2});
+    return;
+  }
+  $.post('/index.php/index/Account/doregister',{'username':username,'pwd':pwd,'repwd':repwd,"telephone":telephone},function(res){
+    if(res.code>0){
+      layer.alert(res.msg,{icon:2});
+    }else{
+      layer.msg(res.msg);
+      setTimeout(function(){window.location.href = '/index.php/index/Account/login'},1000);
+    }
+  },'json');
+}
+</script>

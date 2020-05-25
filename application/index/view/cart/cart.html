@@ -1,0 +1,168 @@
+{layout name="layout"/}
+<link rel="stylesheet" type="text/css" href="__STATIC__/css/cart.css">
+<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+<script type="text/javascript" src="__STATIC__/js/jquery-1.8.3.min.js"></script>
+
+<!--搜索栏的实现-->
+<div class="search w">
+    <div class="left"><p>购物车</p></div>
+    <!-- <div class="right">
+        <input type="text" value="" id="wd">
+        <input type="button" value="搜索" onclick="searchs()">
+    </div> -->
+</div>
+<!-- 主体main实现 -->
+<form>
+
+<div class="main w">
+	<div class="all">
+		<p>全部商品</p>
+		<input type="button" name="" value="结算" onclick="order()">
+		<span>已选商品&nbsp;0.00</span>
+	</div>
+	<div class="goods">
+		<div class="goods_left">
+			<!-- <input type="checkbox" id="allcheckbox"><span style="margin-left:5px;">全选</span> -->
+			<span>商品信息</span>
+		</div>
+		<div class="goods_right">
+			<span>单价</span>
+			<span>数量</span>
+			<span>金额</span>
+			<span>操作</span>
+		</div>
+	</div>
+	<div class="items w">
+		<div class="items_left">
+			{volist name="data.data.lists" id="vo"}
+
+			<div class="items1">
+
+			  <input type="checkbox" name="goods" value="{$vo.gid}">
+				<img style="width:80px; height:80px" src={$vo.img}>
+				<span><a href="/index.php/index/Goods/goodsDetails?goods_id={$vo.gid}">{$vo.title}</a></span>
+				<div class="right">
+				<span>￥{$vo.price}</span>
+				<span><input type="number" name="num" min="1" value="{$vo.num}"; style="width:40px;"></span>
+				<span class="price">￥{$vo.price*$vo.num}</span>
+				<span class="delete"><a href="javascript:void(0);" onclick="del({$vo.cid})">删除</a></span>
+				</div>
+
+			</div>
+			{/volist}
+
+		</div>
+		<div class="items_right"><img style="heith:529px; width:195px;"src="{$data.data.location.cart_right.img}"></div>
+	</div>
+  <div id="pages"></div>
+	<div class="settlement">
+		<div class="left">
+		<input type="checkbox" id="allcheckbox"><span style="margin-left: 5px;"><a>全选</a></span>
+		<a style="margin-left: 40px;">删除</a>
+		<!-- <span style="margin-left: 380px;">已选商品&nbsp<span class="blue">0</span>&nbsp件</span> -->
+		<span style="margin-left:115px;">合计：<span class="blue">0.00</span></span>
+	  </div>
+		<input type="button" class="right" onclick="order()" value="结算">
+	</div>
+
+  </form>
+<script type="text/javascript">
+	layui.use(['layer','laypage'],function(){
+		layer = layui.layer;
+		$ = layui.jquery;
+		laypage = layui.laypage;
+
+		laypage.render({
+				elem: 'pages'
+				,count:{$data.data.total}
+				,limit:{$data.pageSize}
+				,curr:{$data.page}
+			,jump: function(obj, first){
+				if(!first){
+					searchs(obj.curr);
+				}
+			}
+		});
+	});
+
+
+  $(function() {
+          $("#allcheckbox").click(function() {
+              $(":checkbox[name='goods']").prop("checked", this.checked); // this指代的你当前选择的这个元素的JS对象
+          });
+
+
+      });
+
+
+
+  //结算
+  function order(){
+    var id_array=new Array();
+    $('input[name="goods"]:checked').each(function(){
+	  id_array.push($(this).val());//向数组中添加元素
+    });
+    var chapterstr = id_array.join(',');//将数组元素连接起来以构建一个字符串
+
+    var num_array=new Array();
+    var all_goods=new Array();
+    $('input[name="goods"]').each(function(){
+
+    all_goods.push($(this).val());
+    });
+    $('input[name="num"]').each(function(){
+
+    num_array.push($(this).val());
+    });
+    var numstr = num_array.join(',');//将数组元素连接起来以构建一个字符串
+    var allstr = all_goods.join(',');
+
+
+    var length = id_array.length;
+    var sequence = new Array();
+    var num = new Array();
+    for(i=0;i<length;i++){
+      for(j=0;j<4;j++){
+          if(all_goods[j] == id_array[i]){
+            sequence.push(j);
+          }
+      }
+    }
+
+    for(i=0;i<length;i++){
+        num.push(num_array[sequence[i]]);
+    }
+    layer.open({
+			type: 2,
+			title: '生成订单',
+			shade: 0.3,
+			area: ['800px', '500px'],
+			content: '/index.php/index/Order/add?gid='+ chapterstr + '&allstr=' + allstr + '&numstr=' + numstr + '&num=' + num
+		});
+  }
+  //删除
+  function del(cid){
+		layer.confirm('确定要删除吗？', {
+			icon:3,
+			btn: ['确定','取消']
+		}, function(){
+			$.post('/index.php/index/Cart/delete',{'cid':cid},function(res){
+				if(res.code>0){
+					layer.alert(res.msg,{icon:2});
+				}else{
+					layer.msg(res.msg);
+					setTimeout(function(){window.location.reload();},1000);
+				}
+			},'json');
+		});
+	}
+	// 搜索
+	function searchs(curpage){
+		var wd = $.trim($('#wd').val());
+		var url = "/index.php/index/cart/cart?page="+curpage;
+		if(wd){
+			url += '&wd='+wd;
+		}
+		window.location.href = url;
+	}
+</script>

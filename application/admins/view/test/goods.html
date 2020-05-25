@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="__STATIC__/css/goods.css">
+		<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	</head>
+	<body>
+<!-- 主体main -->
+<div class="main w">
+	<div class="m_left">
+		{volist name="data.data.lists" id="vo"}
+		<div class="product1" style=" height: 141px;">
+			<img src="{$vo.img}">
+			<span>
+				<a href="/index.php/index/Goods/goodsDetails?goods_id={$vo.gid}">{$vo.title}</a>
+			</span>
+			<span style="padding-left: 225px;color: #0086ff;">￥{$vo.price}</span>
+			<span style="padding-left: 110px;">0人付款</span>
+		</div>
+		{/volist}
+	</div>
+	<div class="m_right"></div>
+	<div id="pages"></div>
+</div>
+<script type="text/javascript">
+	layui.use(['layer','laypage'],function(){
+		layer = layui.layer;
+		$ = layui.jquery;
+		laypage = layui.laypage;
+
+		laypage.render({
+				elem: 'pages'
+				,count:{$data.data.total}
+				,limit:{$data.pageSize}
+				,curr:{$data.page}
+			,jump: function(obj, first){
+				if(!first){
+					searchs(obj.curr);
+				}
+			}
+		});
+	});
+
+
+	// 搜索
+	function searchs(curpage){
+		var wd = $.trim($('#wd').val());
+		var url = "/index.php/index/goods/goods?page="+curpage;
+		if(wd){
+			url += '&wd='+wd;
+		}
+		window.location.href = url;
+	}
+</script>
+
+</body>
+</html>
